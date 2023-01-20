@@ -1,0 +1,50 @@
+# Install
+install.packages("NMF")
+# Load
+library(NMF)
+
+# how to make frequency table in r (nicer version)
+install.packages('epiDisplay')
+library(epiDisplay)
+
+setwd("/Users/annakazachka/PSTAT296/OurDataSets")
+discrete <- read.csv('Discrete_Benefit_Data.csv')
+
+tab1(discrete$Contract_ID, cum.percent = TRUE)
+tab1(discrete$Plan_ID, cum.percent = TRUE)
+tab1(discrete$Segment_ID, cum.percent = TRUE)
+tab1(discrete$Year, cum.percent = TRUE)
+tab1(discrete$Star_Rating, cum.percent = TRUE)
+tab1(discrete$Drug_Coverage, cum.percent = TRUE)
+tab1(discrete$In_Inpatient_numdays, cum.percent = TRUE)
+tab1(discrete$In_Inpatient_inf, cum.percent = TRUE)
+tab1(discrete$Out_Inpatient_numdays, cum.percent = TRUE)
+tab1(discrete$Out_Inpatient_inf, cum.percent = TRUE)
+tab1(discrete$X..of.preventive.Dental.Coverage, cum.percent = TRUE)
+tab1(discrete$X..of.comprehensive.Dental.Coverage, cum.percent = TRUE)
+tab1(discrete$X14c1_Health_Education, cum.percent = TRUE)
+tab1(discrete$X14c10_In.Home_Safety_Assessment, cum.percent = TRUE)
+tab1(discrete$X14c11_Personal_Emergency_Response_System, cum.percent = TRUE)
+tab1(discrete$X14c12_Medical_Nutrition_Therapy, cum.percent = TRUE)
+tab1(discrete$X14c13_In.Home_Medication_Reconciliation, cum.percent = TRUE)
+tab1(discrete$X14c14_Re.admission_Prevention, cum.percent = TRUE)
+tab1(discrete$X14c15_Wigs_for_Hair_Loss, cum.percent = TRUE)
+tab1(discrete$X14c16_Weight_Management_Programs, cum.percent = TRUE)
+tab1(discrete$X14c17_Alternative_Therapies, cum.percent = TRUE)
+tab1(discrete$X14c2_Nutritional.Dietary_Benefit, cum.percent = TRUE)
+tab1(discrete$X14c3_Smoking_Tobacco_Counseling, cum.percent = TRUE)
+tab1(discrete$X14c4_Fitness_Benefit, cum.percent = TRUE)
+tab1(discrete$X14c5_Enhanced_Disease_Management, cum.percent = TRUE)
+tab1(discrete$X14c6_Telemonitoring_Services, cum.percent = TRUE)
+tab1(discrete$X14c7_Remote_Access_Technologies, cum.percent = TRUE)
+tab1(discrete$X14c8_Bathroom_Safety_Devices, cum.percent = TRUE)
+tab1(discrete$X14c9_Counseling_Services, cum.percent = TRUE)
+tab1(discrete$X14c18_Therapeutic_Massage, cum.percent = TRUE)
+tab1(discrete$X14c19_Adult_Day_Health_Services, cum.percent = TRUE)
+tab1(discrete$X14c20_Home.Based_Palliative_Care, cum.percent = TRUE)
+tab1(discrete$X14c21_In.Home_Support_Services, cum.percent = TRUE)
+tab1(discrete$X14c22_Support_for_Caregivers_of_Enrollees, cum.percent = TRUE)
+
+
+
+

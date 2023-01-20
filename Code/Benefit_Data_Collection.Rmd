@@ -1,0 +1,70 @@
+---
+title: "Benefit_Data_Collection"
+author: "Candice Yu"
+date: "2023-01-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+## 1. Read data 
+#install.packages("readxl")
+library("readxl")
+Benefit_2019 <- read_excel(paste0("/Users/candiceyu/Documents/PSTAT296B/Data/", 
+                                  "Benefit_2019.xlsx"))
+Benefit_2020 <- read_excel(paste0("/Users/candiceyu/Documents/PSTAT296B/Data/", 
+                                  "Benefit_2020.xlsx"))
+Benefit_2021 <- read_excel(paste0("/Users/candiceyu/Documents/PSTAT296B/Data/", 
+                                  "Benefit_2021.xlsx"))
+Benefit_2022 <- read_excel(paste0("/Users/candiceyu/Documents/PSTAT296B/Data/", 
+                                  "Benefit_2022.xlsx"))
+
+## 2. Combine data together 
+#install.packages("dplyr")                   
+library("dplyr")
+Benefit_Total<-rbind(Benefit_2019, Benefit_2020, Benefit_2021, Benefit_2022)  
+
+Benefit_Total[ , 2:75] <- apply(Benefit_Total[ , 2:75], 2,            
+                    function(x) as.numeric(as.character(x)))
+## 3. Export
+write.csv(Benefit_Total, row.names = FALSE, "/Users/candiceyu/Documents/PSTAT296B/Data/Benefit_Total.csv")
+
+```
+
+
+```{r}
+## 1. Read the data
+Benefit_Total <- read.csv("/Users/candiceyu/Documents/PSTAT296B/Data/Benefit_Total.csv")
+
+Benefit_Total$Contract_Plan_Segment <- paste0(Benefit_Total$Contract_ID, 
+                                                        "-", Benefit_Total$Plan_ID,
+                                                        "-", Benefit_Total$Segment_ID)
+
+## 2. Variable with missing values 
+Col_NA <- names(which(colSums(is.na(Benefit_Total)) > 0))
+
+NA_Index <- c()
+for (i in Col_NA){
+  a = which(colnames(Benefit_Total) == i)
+  NA_Index <- append(NA_Index, a)
+}
+
+## 3. Create new table with duplicated variables 
+Benefit_NA <- Benefit_Total[, c(77, 4, NA_Index)]
+colnames(Benefit_NA)[3:38] <- paste0(colnames(Benefit_NA)[3:38],"_NA")
+
+Benefit_NA[3:38]<- ifelse(is.na(Benefit_NA[3:38]),1,0)
+
+## 4. Merge two table into one 
+Benefit_Dummy <- merge(Benefit_Total, Benefit_NA, by = c("Contract_Plan_Segment", "Year"))
+Benefit_Dummy <- Benefit_Dummy[,-77]
+
+## 5. Export
+write.csv(Benefit_Dummy, row.names = FALSE, "/Users/candiceyu/Documents/PSTAT296B/Data/Benefit_Dummy.csv")
+```
+
+
+

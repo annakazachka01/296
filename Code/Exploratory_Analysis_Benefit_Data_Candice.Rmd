@@ -1,0 +1,115 @@
+---
+title: "Exploratory_Analysis_Benefit_Data_Candice"
+author: "Candice Yu"
+date: "2023-01-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Separation of discrete and continuous variable
+```{r}
+Benefit_Total <- read.csv("/Users/candiceyu/Documents/PSTAT296B/Data/Benefit_Total.csv")
+Discrete_Var <- c("Contract_ID", "Plan_ID", "Segment_ID", "Year", "Star_Rating", "Drug_Coverage",
+              "In_Inpatient_numdays", "In_Inpatient_inf", "Out_Inpatient_numdays",
+              "Out_Inpatient_inf", "X..of.preventive.Dental.Coverage",
+              "X..of.comprehensive.Dental.Coverage", "X14c1_Health_Education",
+              "X14c10_In.Home_Safety_Assessment", "X14c11_Personal_Emergency_Response_System",
+              "X14c12_Medical_Nutrition_Therapy", "X14c13_In.Home_Medication_Reconciliation",
+              "X14c14_Re.admission_Prevention", "X14c15_Wigs_for_Hair_Loss",
+              "X14c16_Weight_Management_Programs", "X14c17_Alternative_Therapies",
+              "X14c2_Nutritional.Dietary_Benefit", "X14c3_Smoking_Tobacco_Counseling",
+              "X14c4_Fitness_Benefit", "X14c5_Enhanced_Disease_Management", 
+              "X14c6_Telemonitoring_Services", "X14c7_Remote_Access_Technologies", 
+              "X14c8_Bathroom_Safety_Devices", "X14c9_Counseling_Services", 
+              "X14c18_Therapeutic_Massage", "X14c19_Adult_Day_Health_Services",
+              "X14c20_Home.Based_Palliative_Care", "X14c21_In.Home_Support_Services",
+              "X14c22_Support_for_Caregivers_of_Enrollees")
+Discrete_Var2 <- c("Star_Rating", "Drug_Coverage",
+              "In_Inpatient_numdays", "In_Inpatient_inf", "Out_Inpatient_numdays",
+              "Out_Inpatient_inf", "X..of.preventive.Dental.Coverage",
+              "X..of.comprehensive.Dental.Coverage", "X14c1_Health_Education",
+              "X14c10_In.Home_Safety_Assessment", "X14c11_Personal_Emergency_Response_System",
+              "X14c12_Medical_Nutrition_Therapy", "X14c13_In.Home_Medication_Reconciliation",
+              "X14c14_Re.admission_Prevention", "X14c15_Wigs_for_Hair_Loss",
+              "X14c16_Weight_Management_Programs", "X14c17_Alternative_Therapies",
+              "X14c2_Nutritional.Dietary_Benefit", "X14c3_Smoking_Tobacco_Counseling",
+              "X14c4_Fitness_Benefit", "X14c5_Enhanced_Disease_Management", 
+              "X14c6_Telemonitoring_Services", "X14c7_Remote_Access_Technologies", 
+              "X14c8_Bathroom_Safety_Devices", "X14c9_Counseling_Services", 
+              "X14c18_Therapeutic_Massage", "X14c19_Adult_Day_Health_Services",
+              "X14c20_Home.Based_Palliative_Care", "X14c21_In.Home_Support_Services",
+              "X14c22_Support_for_Caregivers_of_Enrollees", "Q1.website")
+Discrete_Benefit_Data <- Benefit_Total[, Discrete_Var]
+Continuous_Benefit_Data <- Benefit_Total[, !(names(Benefit_Total) %in% Discrete_Var2)]
+
+write.csv(Discrete_Benefit_Data, row.names = FALSE,
+          "/Users/candiceyu/Documents/PSTAT296B/Data/Discrete_Benefit_Data.csv")
+write.csv(Continuous_Benefit_Data, row.names = FALSE,
+          "/Users/candiceyu/Documents/PSTAT296B/Data/Continuous_Benefit_Data.csv")
+```
+
+# For the continuous variables in the benefits data, generate a succession of boxplots in the same plot
+```{r}
+## 1. Read the data 
+Continuous_Benefit_Data <- read.csv(
+  "/Users/candiceyu/Documents/PSTAT296B/Data/Continuous_Benefit_Data.csv")
+
+Discrete_Benefit_Data <- read.csv("/Users/candiceyu/Documents/PSTAT296B/Data/Discrete_Benefit_Data.csv")
+
+## 2. Combine the contract ID, Plan ID and Segment ID into one column 
+#Continuous_Benefit_Data$Contract_Plan_Segment <- paste0(Continuous_Benefit_Data$Contract_ID, 
+#                                                        "-", Continuous_Benefit_Data$Plan_ID,
+#                                                        "-", Continuous_Benefit_Data$Segment_ID)
+
+Continuous_Benefit_Data <- Continuous_Benefit_Data[, -c(1:4)]
+
+
+library(ggplot2)
+
+## 1. Boxplots
+par(mfrow = c(5,9))
+var = names(Continuous_Benefit_Data)
+for (i in var){
+  print(ggplot(Continuous_Benefit_Data, aes_string(y = i)) + 
+          geom_boxplot() +
+          theme(axis.text.x = element_blank(),
+                axis.ticks.x = element_blank()))
+}
+
+```
+
+
+# Growth Plots for the star rating 
+```{r fig.align="center", fig.height=6, fig.width=8}
+## 1. Combine the contract ID, Plan ID and Segment ID into one column 
+Discrete_Benefit_Data$Contract_Plan_Segment <- paste0(Discrete_Benefit_Data$Contract_ID, 
+                                                        "-", Discrete_Benefit_Data$Plan_ID,
+                                                        "-", Discrete_Benefit_Data$Segment_ID)
+
+
+# Plots for all plans
+ggplot(data = Discrete_Benefit_Data, aes(x = Year, y = Star_Rating, color = Contract_ID)) +
+  geom_point() +
+  facet_wrap(~ Contract_Plan_Segment) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE) + 
+  labs(title = "Changes in Enrollment from 2019 to 2022",
+       x = "Year",
+       y = "Enrollment",
+       color = NULL)
+```
+
+# Draw conclusions and hypothesis
+```{r}
+
+```
+
+# Include any other descriptive analysis or plot that you consider important
+```{r}
+
+```
+
+
+
