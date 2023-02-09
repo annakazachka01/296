@@ -1,0 +1,141 @@
+---
+title: "Modeling_Candice"
+author: "Candice Yu"
+date: "2023-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import data
+```{r}
+Enrollment_Coef<- read.csv("/Users/candiceyu/Documents/PSTAT296B/Data/Enrollment_Coef.csv")
+```
+
+```{r}
+#plot scores of interest
+plot(lee, snmfl, what = c('cophenetic', 'rss'))
+#measures are extractable:
+lee$measures$rss
+lee$measures$cophenetic
+```
+
+```{r}
+basismap(lee$fit$`7`)
+coefmap(lee$fit$`7`)
+```
+
+```{r}
+s<- featureScore(lee$fit$`7`)
+summary(s)
+
+Features_Num <- extractFeatures(lee$fit$`7`, 0.5)
+Features_Num
+# extract features that have a relative basis contribution above a threshold of 0.5
+
+extractFeatures(lee$fit$`7`, method = "kim")
+
+extractFeatures(lee$fit$`7`, method = "max")
+```
+
+```{r}
+feature<- names(Benefit_Dummy2[, c(6:60, 62:95, 100:119)])
+Feature_Main <- list(feature[Features_Num[1][[1]]], feature[Features_Num[2][[1]]], 
+                     feature[Features_Num[3][[1]]], feature[Features_Num[4][[1]]], 
+                     feature[Features_Num[5][[1]]], feature[Features_Num[6][[1]]], 
+                     feature[Features_Num[7][[1]]])
+Feature_Main
+```
+- Lots of discrete variables
+- Differences between continuous variables are small -> change to different scale? 
+
+- Basis vector 1: Mostly inpatient coverage 
+- Basis vector 2: High frequency and low severity benefits  
+- Basis vector 3: Extra health services (Vision & fitness) 
+- Basis vector 4: Extra health services (Fitness)
+- Basis vector 5: Extra health services (Vision & fitness)
+- Basis vector 6: indicates no drug coverage
+- Basis vector 7: Whether it provides out-of-network service or not and whether they are coinsurance. 
+
+
+# Simple linear model 
+```{r}
+Linear_Model <- lm(State_Enrollment ~ Year + `X1` + `X2` + `X3` + `X4` +`X5` + `X6` + `X7` + 
+     Star_Rating_3 + Star_Rating_3.5 + Star_Rating_4 + Star_Rating_4.5, 
+   weights = 1 / State_Eligibles, 
+   data = Enrollment_Coef)
+summary(Linear_Model)
+```
+
+# Linear Mixed Model
+
+```{r}
+star_rating <- read.csv("/Users/candiceyu/Documents/PSTAT296B/Data/Benefit_Total.csv") %>% 
+  select('Contract_ID', 'Plan_ID', 'Segment_ID', 'Star_Rating', 'Year')
+# Left join on multiple columns
+Enrollment_Coef_SR <- merge(x = Enrollment_Coef, y = star_rating, 
+                         by = c("Contract_ID", "Plan_ID", "Segment_ID", "Year"), all.x=TRUE)
+Enrollment_Coef_SR$Star_Rating[which(is.na(Enrollment_Coef_SR$Star_Rating))] = 0
+Enrollment_Coef_SR$Star_Rating<- as.factor(Enrollment_Coef_SR$Star_Rating)
+```
+
+```{r}
+library(nlme)
+
+model1 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, 
+              data = Enrollment_Coef_SR, random = ~ 1 | Year, weights=~State_Eligibles)
+summary(model1)
+
+model2 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, 
+              data = Enrollment_Coef_SR, random = ~ 1 | Year/Star_Rating, weights=~State_Eligibles)
+summary(model2)
+```
+```{r}
+anova(model1, model2)
+# Adding star_rating as random effect increased AIC/BIC
+# Star_Rating has no random effect 
+```
+```{r}
+model3 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, 
+              data = Enrollment_Coef_SR, random = ~ 1 | Year, weights =~State_Eligibles)
+summary(model3)
+
+model4 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, 
+              data = Enrollment_Coef_SR, random = ~ 1 | Year/Contract_ID, weights=~State_Eligibles)
+summary(model4)
+```
+
+```{r}
+anova(model3, model4)
+# Brand (Contract_ID) is significant 
+```
+
+
+```{r}
+model5 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7, 
+              data = Enrollment_Coef_SR, random = ~ 1 | Year/Contract_ID, weights=~State_Eligibles)
+
+model6 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + 
+     Star_Rating_3 + Star_Rating_3.5 + Star_Rating_4 + Star_Rating_4.5, 
+     data = Enrollment_Coef_SR, random = ~ 1 | Year/Contract_ID, weights=~State_Eligibles)
+
+model7 <- lme(State_Enrollment ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + 
+     Star_Rating_3 + Star_Rating_3.5 + Star_Rating_4 + Star_Rating_4.5, 
+     data = Enrollment_Coef_SR, random = ~ 1 | Year, weights=~State_Eligibles)
+summary(model5)
+summary(model6)
+
+```
+```{r}
+anova(model5, model6, model7)
+# Star_Rating has significant fixed effect 
+# Model 6 has the smallest AIC and BIC
+```
+```{r}
+model <- lme(State_Enrollment ~ 1, 
+     data = Enrollment_Coef_SR, random = ~ 1 | Contract_Plan_Segment, weights=~State_Eligibles)
+summary(model)
+```
+
